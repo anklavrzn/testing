@@ -1,0 +1,1 @@
+Patroni cluster installation with ONE ETCD server

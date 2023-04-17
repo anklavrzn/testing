@@ -1,0 +1,14 @@
+<VirtualHost 127.0.0.1:8080>
+   ServerName {{ http_host }}.test.local
+   ServerAlias {{ http_host }}.test.local
+   DocumentRoot /var/www/{{ http_host }}
+
+   <Directory /var/www/{{ http_host }}>
+         Options -Indexes
+   </Directory>
+
+   <IfModule mod_dir.c>
+       DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
+   </IfModule>
+
+</VirtualHost>

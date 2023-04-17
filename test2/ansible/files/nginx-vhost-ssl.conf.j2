@@ -1,0 +1,28 @@
+
+server {
+        listen  80;
+        server_name     {{ http_host }}.test.local;
+        return 301 https://{{ http_host }}.test.local$request_uri;
+}
+
+server {
+        listen  443;
+        ssl on;
+        ssl_certificate /etc/ssl/certs/httpd-selfsigned.crt;
+        ssl_certificate_key     /etc/ssl/private/httpd-selfsigned.key;
+        ssl_dhparam /etc/ssl/certs/dhparam.pem;
+        ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+        ssl_prefer_server_ciphers on;
+
+        server_name     {{ http_host }}.test.local;
+        location / {
+            root        /var/www/{{ http_host }}/;
+            index       index.html;
+        }
+        location ~ \.php($|\/) {
+            proxy_pass  http://127.0.0.1:8080;
+            proxy_set_header    X-Real-IP       $remote_addr;
+            proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;            
+            proxy_set_header    Host    $host;
+        }
+}

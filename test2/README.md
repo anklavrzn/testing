@@ -1,0 +1,1 @@
+Nginx forntend - Apache backend PHP application

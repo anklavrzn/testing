@@ -1,0 +1,77 @@
+---
+- name: Apache2/Nginx server install & configure
+  hosts: centos
+  become: yes
+
+  tasks:
+  - name: Import a key from a url
+    rpm_key:
+      state: present
+      key: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7  
+  - name: Install epel from remote repo
+    yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm state=present
+  - name: Install Apache and Nginx
+    yum: name={{ item }} state=latest
+    loop:
+      - httpd
+      - nginx
+#---------------Install PHP7.2----------------
+  - name: Install remi from remote repo
+    yum: name=http://rpms.remirepo.net/enterprise/remi-release-7.rpm state=present
+  - name: upgrade all packages
+    yum: name=* state=latest
+  - name: Install php
+    yum: pkg=php enablerepo=remi,remi-php72 state=present
+#---------------------------------------------
+  
+  - name: Create document root
+    file:
+      path: "/var/www/{{ http_host }}"
+      state: directory
+#      owner: "{{ app_user }}"
+      mode: '0775'
+
+  - name: Sets Up PHP Info Page
+    copy:
+      src: "files/info.php"
+      dest: "/var/www/{{ http_host }}/info.php"
+
+  - name: Turn on CONF.D folder scan - enable vhosts
+    shell: sed -i 's/#IncludeOptional conf.d/IncludeOptional conf.d/g' /etc/httpd/conf/httpd.conf
+  - name: Change Listen port for backend
+    shell: sed -i 's/Listen 80/Listen 127.0.0.1:8080/g' /etc/httpd/conf/httpd.conf
+  - name: Copy index.html to virtualhost
+    template:
+      src: "files/index.html.j2"
+      dest: "/var/www/{{ http_host }}/index.html"
+  - name: Copy image
+    copy:
+      src: "files/butterfly.jpeg"
+      dest: "/var/www/{{ http_host }}/"
+  - name: Copy remoteip_module for Apache
+    copy:
+      src: "files/remoteip.conf"
+      dest: "/etc/httpd/conf.d/"    
+  - name: Set up Apache virtualhost
+    template:
+      src: "files/apache2.conf.j2"
+      dest: "/etc/httpd/conf.d/{{ http_host }}.conf"
+  - name: Set up Nginx (Listen 443)
+    copy:
+      src: "files/nginx-ssl.conf"
+      dest: "/etc/nginx/nginx.conf"
+  - name: Set up Nginx virtualhost
+    template:
+      src: "files/nginx-vhost-ssl.conf.j2"
+      dest: "/etc/nginx/conf.d/{{ http_host }}.conf"
+#---------------Disable SELinux---------------
+  - name: Disable SELinux
+    selinux: state=disabled
+#---------------------------------------------
+  - name: Enable Apache/Nginx
+    service: name={{ item }} enabled=yes
+    loop:
+      - httpd
+      - nginx
+
+  
