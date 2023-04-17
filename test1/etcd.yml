@@ -1,0 +1,22 @@
+---
+- name: Install etcd
+  hosts: etcd
+  become: yes
+
+  tasks:
+  - name: Install etcd
+    apt:
+      name: etcd
+      update_cache: yes
+      state: present
+
+  - name: Copy config
+    template:
+      src: "files/etcd.j2"
+      dest: "/etc/default/etcd" 
+
+  - name: Start etcd
+    service: 
+      name: etcd
+      state: restarted
+      enabled: yes

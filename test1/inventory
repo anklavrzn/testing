@@ -1,0 +1,13 @@
+haproxy ansible_host=192.168.88.27
+etcd ansible_host=192.168.88.28
+
+[aspect-db]
+postgres1 ansible_host=192.168.88.25
+postgres2 ansible_host=192.168.88.26
+
+[all:vars]
+ansible_user=admin  
+ansible_password=yfcnhjqrf
+postgres1_ip=192.168.88.25
+postgres2_ip=192.168.88.26
+etcd_ip=192.168.88.28

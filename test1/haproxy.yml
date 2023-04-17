@@ -1,0 +1,22 @@
+---
+- name: Install HAProxy
+  hosts: haproxy
+  become: yes
+
+  tasks:
+  - name: Install HAProxy
+    apt:
+      name: haproxy
+      update_cache: yes
+      state: present
+
+  - name: Copy config
+    template:
+      src: "files/haproxy.cfg.j2"
+      dest: "/etc/haproxy/haproxy.cfg" 
+  
+  - name: Start HAProxy
+    service: 
+      name: haproxy
+      state: restarted
+      enabled: yes
