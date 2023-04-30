@@ -1,2 +1,2 @@
-[LOGINOM]
+[prod]
 centos ansible_user=admin ansible_password=yfcnhjqrf ansible_host=192.168.88.25
